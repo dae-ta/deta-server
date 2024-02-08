@@ -1,34 +1,47 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
-import { UserService } from './user.service';
+import {
+  Body,
+  Controller,
+  Get,
+  Post,
+  Req,
+  Res,
+  UseGuards,
+} from '@nestjs/common';
+import { LocalAuthGuard } from 'src/auth/guard/local-auth.guard';
+import { NotLoggedInGuard } from 'src/auth/guard/not-logged-in-guard';
 import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
+import { UserService } from './user.service';
+import { User } from 'src/shared/decorator/user.decorator';
+import { LoggedInGuard } from 'src/auth/guard/logged-in.quard';
 
 @Controller('user')
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
-  @Post('signup')
+  @UseGuards(NotLoggedInGuard)
+  @Post('join')
   async create(@Body() createUserDto: CreateUserDto) {
     await this.userService.create(createUserDto);
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.userService.findOne(Number(id));
+  @UseGuards(...[NotLoggedInGuard, LocalAuthGuard])
+  @Post('login')
+  async login(@Req() req) {
+    return req.user;
   }
 
-  // @Patch(':id')
-  // update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
-  //   return this.userService.update(Number(id), updateUserDto);
-  // }
+  @UseGuards(LoggedInGuard)
+  @Post('logout')
+  async logout(@Res() res) {
+    res.clearCookie('connect.sid', { httpOnly: true });
+    return res.send('ok');
+  }
 
-  // @Delete(':id')
-  // remove(@Param('id') id: string) {
-  //   return this.userService.remove(+id);
-  // }
-
-  // @Get('')
-  // findAll() {
-  //   return this.userService.findAll();
-  // }
+  @Get('me')
+  findOne(@User() user) {
+    if (user) {
+      return user;
+    }
+    return null;
+  }
 }

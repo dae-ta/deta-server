@@ -10,39 +10,35 @@ import bcrypt from 'bcrypt';
 export class UserService {
   constructor(
     @InjectRepository(User)
-    private usersRepository: Repository<User>,
+    private userRepository: Repository<User>,
   ) {}
 
-  async create(user: CreateUserDto): Promise<User> {
-    const result = await this.usersRepository.findOneBy({ nickname: user.nickname })
+  async create(user: CreateUserDto) {
+    const result = await this.userRepository.findOneBy({ email: user.email });
 
-    if(result) {
-      throw new UnauthorizedException('Nickname already exists')
+    if (result) {
+      throw new UnauthorizedException('이미 존재하는 이메일입니다.');
     }
-    
-    const hashedPassword = await bcrypt.hash(user.password, 12)
 
-    const newUser = this.usersRepository.create({
+    const hashedPassword = await bcrypt.hash(user.password, 12);
+
+    const newUser = this.userRepository.create({
       ...user,
-      password: hashedPassword
+      password: hashedPassword,
     });
-  
-    return this.usersRepository.save(newUser);
+
+    return this.userRepository.save(newUser);
   }
 
   findAll(): Promise<User[]> {
-    return this.usersRepository.find();
+    return this.userRepository.find();
   }
 
-  findOne(id: number): Promise<User | null> {
-    return this.usersRepository.findOneBy({ id });
-  }
-
-  update(id: number, updateUserDto: UpdateUserDto) {
-    return `This action updates a #${id} user`;
+  findOne(email: string): Promise<User | null> {
+    return this.userRepository.findOneBy({ email });
   }
 
   async remove(id: number): Promise<void> {
-    await this.usersRepository.delete(id);
+    await this.userRepository.delete(id);
   }
 }

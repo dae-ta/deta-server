@@ -1,4 +1,3 @@
-import { IsNotEmpty, IsString } from "class-validator";
 import { Column, CreateDateColumn, DeleteDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 
 @Entity('user', { schema: 'nest' })
@@ -7,9 +6,9 @@ export class User {
     id: number;
 
     @Column('varchar', { unique: true, length: 30 })
-    nickname: string;
+    email: string;
 
-    @Column('varchar', { unique: true, length: 60 })
+    @Column('varchar', { unique: true, length: 60, select: false })
     password: string;
 
     @CreateDateColumn()
