@@ -1,10 +1,7 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
-import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
+import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from 'src/user/entities/user.entity';
 import { Repository } from 'typeorm';
-import bcrypt from 'bcrypt';
 
 @Injectable()
 export class UserService {
@@ -12,23 +9,6 @@ export class UserService {
     @InjectRepository(User)
     private userRepository: Repository<User>,
   ) {}
-
-  async create(user: CreateUserDto) {
-    const result = await this.userRepository.findOneBy({ email: user.email });
-
-    if (result) {
-      throw new UnauthorizedException('이미 존재하는 이메일입니다.');
-    }
-
-    const hashedPassword = await bcrypt.hash(user.password, 12);
-
-    const newUser = this.userRepository.create({
-      ...user,
-      password: hashedPassword,
-    });
-
-    return this.userRepository.save(newUser);
-  }
 
   findAll(): Promise<User[]> {
     return this.userRepository.find();
