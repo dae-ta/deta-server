@@ -1,6 +1,6 @@
 import { Controller, Get, Post, Res, UseGuards } from '@nestjs/common';
 
-import { User } from 'src/shared/decorator/user.decorator';
+import { User } from 'src/@shared/decorator/user.decorator';
 import { UserService } from './user.service';
 import { AccessTokenGuard } from 'src/auth/guard/bearer-token.guard';
 
