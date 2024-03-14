@@ -22,7 +22,6 @@ export class AuthController {
   @UseGuards(RefreshTokenGuard)
   accessToken(@Headers('authorization') rowToken: string) {
     const token = this.authService.extractTokenFromHeader(rowToken);
-    console.log(token);
 
     const newToken = this.authService.refreshAccessToken(token, true);
     const newRefreshToken = this.authService.refreshAccessToken(token, false);

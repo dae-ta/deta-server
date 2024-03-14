@@ -25,19 +25,15 @@ export class BearerTokenGuard implements CanActivate {
 
     const token = this.authService.extractTokenFromHeader(rawToken);
 
-    try {
-      const result = await this.authService.verifyToken(token);
+    const result = await this.authService.verifyToken(token);
 
-      const user = await this.userService.findOne(result.email);
+    const user = await this.userService.findOne(result.email);
 
-      req.token = token;
-      req.tokenType = result.type;
-      req.user = user;
+    req.token = token;
+    req.tokenType = result.type;
+    req.user = user;
 
-      return true;
-    } catch (error) {
-      throw new UnauthorizedException();
-    }
+    return true;
   }
 }
 
@@ -62,6 +58,8 @@ export class RefreshTokenGuard extends BearerTokenGuard {
     await super.canActivate(context);
 
     const req = context.switchToHttp().getRequest();
+
+    console.log(req.tokenType, 'req.tokenType');
 
     if (req.tokenType !== 'refresh') {
       throw new UnauthorizedException('refresh token이 아닙니다');

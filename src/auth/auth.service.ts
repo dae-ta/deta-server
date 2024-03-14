@@ -36,7 +36,7 @@ export class AuthService {
     };
 
     return this.jwtService.sign(payload, {
-      expiresIn: isAccessToken ? '5m' : '10m',
+      expiresIn: isAccessToken ? '15m' : '1y',
       secret: process.env.JWT_SECRET,
     });
   }
@@ -58,7 +58,6 @@ export class AuthService {
 
   async login(user: Pick<User, 'email' | 'password'>) {
     const existingUser = await this.validateUser(user);
-    console.log(existingUser, 'existingUser');
 
     return this.generateLoginTokens(existingUser);
   }
@@ -125,9 +124,13 @@ export class AuthService {
    * Verify token
    */
   verifyToken(token: string) {
-    return this.jwtService.verify(token, {
-      secret: process.env.JWT_SECRET,
-    });
+    try {
+      return this.jwtService.verify(token, {
+        secret: process.env.JWT_SECRET,
+      });
+    } catch (error) {
+      throw new UnauthorizedException('Invalid token');
+    }
   }
 
   refreshAccessToken(token: string, isAccessToken: boolean) {

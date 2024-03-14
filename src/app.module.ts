@@ -1,4 +1,9 @@
-import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
+import {
+  ClassSerializerInterceptor,
+  MiddlewareConsumer,
+  Module,
+  NestModule,
+} from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
@@ -9,6 +14,7 @@ import { UserModule } from './user/user.module';
 import { DataSource } from 'typeorm';
 import { User } from 'src/user/entities/user.entity';
 import { AuthModule } from './auth/auth.module';
+import { APP_INTERCEPTOR } from '@nestjs/core';
 
 @Module({
   imports: [
@@ -31,7 +37,15 @@ import { AuthModule } from './auth/auth.module';
   // router
   controllers: [AppController],
   // 비지니스로직의 분리 transaction 단위로 짜는게 좋음, 요청과 응답에 대해서는 관심없어야함. 테스트, 재사용 쉬워짐.
-  providers: [AppService, ConfigService],
+  providers: [
+    AppService,
+    ConfigService,
+    {
+      // @Exclude 적용을 위해
+      provide: APP_INTERCEPTOR,
+      useClass: ClassSerializerInterceptor,
+    },
+  ],
 })
 export class AppModule implements NestModule {
   constructor(private dataSource: DataSource) {}
