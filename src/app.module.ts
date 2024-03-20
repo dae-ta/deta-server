@@ -12,12 +12,22 @@ import { LoggerMiddleware } from 'src/@middlewares/logger.middleware';
 
 import { UserModule } from './user/user.module';
 import { DataSource } from 'typeorm';
-import { User } from 'src/user/entities/user.entity';
+import { UserModel } from 'src/user/entities/user.entity';
 import { AuthModule } from './auth/auth.module';
 import { APP_INTERCEPTOR } from '@nestjs/core';
+import { PostModule } from './post/post.module';
+import { PostModel } from 'src/post/entities/post.entity';
+import { PostImageModel } from 'src/post/entities/post-image.entity';
+import { ServeStaticModule } from '@nestjs/serve-static';
+import { PUBLIC_FOLDER_PATH } from 'src/@shared/constants';
+import { CommonModule } from './common/common.module';
 
 @Module({
   imports: [
+    ServeStaticModule.forRoot({
+      rootPath: PUBLIC_FOLDER_PATH,
+      serveRoot: '/public',
+    }),
     ConfigModule.forRoot({
       isGlobal: true,
     }),
@@ -28,11 +38,13 @@ import { APP_INTERCEPTOR } from '@nestjs/core';
       username: process.env.DB_USERNAME,
       password: process.env.DB_PASSWORD,
       database: process.env.DB_DATABASE,
-      entities: [User],
+      entities: [UserModel, PostModel, PostImageModel],
       synchronize: true,
     }),
     UserModule,
     AuthModule,
+    PostModule,
+    CommonModule,
   ],
   // router
   controllers: [AppController],

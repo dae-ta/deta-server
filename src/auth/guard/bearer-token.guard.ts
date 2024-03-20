@@ -59,8 +59,6 @@ export class RefreshTokenGuard extends BearerTokenGuard {
 
     const req = context.switchToHttp().getRequest();
 
-    console.log(req.tokenType, 'req.tokenType');
-
     if (req.tokenType !== 'refresh') {
       throw new UnauthorizedException('refresh token이 아닙니다');
     }
