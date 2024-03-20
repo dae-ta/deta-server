@@ -7,14 +7,14 @@ import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
 import bcrypt from 'bcrypt';
 import { CreateUserDto } from 'src/user/dto/create-user.dto';
-import { User } from 'src/user/entities/user.entity';
+import { UserModel } from 'src/user/entities/user.entity';
 import { Repository } from 'typeorm';
 
 @Injectable()
 export class AuthService {
   constructor(
-    @InjectRepository(User)
-    private userRepository: Repository<User>,
+    @InjectRepository(UserModel)
+    private userRepository: Repository<UserModel>,
     private jwtService: JwtService,
   ) {}
 
@@ -25,7 +25,7 @@ export class AuthService {
     user,
     isAccessToken,
   }: {
-    user: Pick<User, 'id' | 'email'>;
+    user: Pick<UserModel, 'id' | 'email'>;
     isAccessToken: boolean;
   }) {
     const { id, email } = user;
@@ -44,7 +44,7 @@ export class AuthService {
   /**
    * Generate login tokens
    */
-  generateLoginTokens(user: User): {
+  generateLoginTokens(user: UserModel): {
     accessToken: string;
     refreshToken: string;
     expiredAt: string;
@@ -56,7 +56,7 @@ export class AuthService {
     };
   }
 
-  async login(user: Pick<User, 'email' | 'password'>) {
+  async login(user: Pick<UserModel, 'email' | 'password'>) {
     const existingUser = await this.validateUser(user);
 
     return this.generateLoginTokens(existingUser);
@@ -65,7 +65,9 @@ export class AuthService {
   /**
    * Validate user
    */
-  async validateUser(user: Pick<User, 'email' | 'password'>): Promise<any> {
+  async validateUser(
+    user: Pick<UserModel, 'email' | 'password'>,
+  ): Promise<any> {
     const { email, password } = user;
     const existingUser = await this.userRepository.findOne({
       where: { email },
@@ -137,8 +139,6 @@ export class AuthService {
     const decoded = this.jwtService.verify(token, {
       secret: process.env.JWT_SECRET,
     });
-
-    console.log(decoded, 'decoded');
 
     if (decoded.type !== 'refresh') {
       throw new UnauthorizedException('decoded.type이 refresh가 아닙니다.');
