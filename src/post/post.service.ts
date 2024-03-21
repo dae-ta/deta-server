@@ -1,10 +1,9 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { PostModel } from 'src/post/entities/post.entity';
-import { CreatePostWithUserIdDto } from 'src/post/types';
-import { Repository } from 'typeorm';
-import { UpdatePostDto } from './dto/update-post.dto';
 import { PostImageModel } from 'src/post/entities/post-image.entity';
+import { PostModel } from 'src/post/entities/post.entity';
+import { DataSource, QueryRunner, Repository } from 'typeorm';
+import { UpdatePostDto } from './dto/update-post.dto';
 
 @Injectable()
 export class PostService {
@@ -13,33 +12,59 @@ export class PostService {
     private readonly postRepository: Repository<PostModel>,
     @InjectRepository(PostImageModel)
     private readonly postImageRepository: Repository<PostImageModel>,
+    private readonly dataSource: DataSource,
   ) {}
-  async create({
+
+  async createPost({
     title,
     content,
     userId,
-    imagePaths,
-  }: CreatePostWithUserIdDto) {
-    const post = await this.postRepository.save({
+    queryRunner,
+  }: {
+    title: string;
+    content: string;
+    userId: number;
+    queryRunner?: QueryRunner;
+  }) {
+    const createPostDto = {
       title: title,
       content: content,
       User: {
         id: userId,
       },
-    });
+    };
 
-    await Promise.all(
-      imagePaths.map((imageUrl) => {
-        this.postImageRepository.save({
-          Post: {
-            id: post.id,
-          },
-          imageUrl: imageUrl,
-        });
-      }),
-    );
+    if (queryRunner) {
+      const post = await queryRunner.manager
+        .getRepository<PostModel>(PostModel)
+        .save(createPostDto);
 
-    return post.id;
+      return post.id;
+    } else {
+      const post = await this.postRepository.save(createPostDto);
+
+      return post.id;
+    }
+  }
+
+  async createImage(
+    postId: number,
+    imageUrl: string,
+    queryRunner?: QueryRunner,
+  ) {
+    const postImage = {
+      Post: {
+        id: postId,
+      },
+      imageUrl: imageUrl,
+    };
+    if (queryRunner) {
+      return queryRunner.manager
+        .getRepository<PostImageModel>(PostImageModel)
+        .save(postImage);
+    } else {
+      return this.postImageRepository.save(postImage);
+    }
   }
 
   async findAll() {

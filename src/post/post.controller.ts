@@ -8,12 +8,16 @@ import {
   Patch,
   Post,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
 import { User } from 'src/@shared/decorator/user.decorator';
 import { AccessTokenGuard } from 'src/auth/guard/bearer-token.guard';
 import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
 import { PostService } from './post.service';
+import { TransactionInterceptor } from 'src/@shared/interceptor/transaction-interceptor';
+import { QueryRunner } from 'src/@shared/decorator/query-runner.decorator';
+import { QueryRunner as QR } from 'typeorm';
 
 @Controller('post')
 export class PostController {
@@ -21,9 +25,29 @@ export class PostController {
 
   @Post()
   @UseGuards(AccessTokenGuard)
-  async create(@User() user, @Body() createPostDto: CreatePostDto) {
-    const postCreationPayload = { ...createPostDto, userId: user.id };
-    return await this.postService.create(postCreationPayload);
+  @UseInterceptors(TransactionInterceptor)
+  async create(
+    @User() user,
+    @Body() createPostDto: CreatePostDto,
+    @QueryRunner() queryRunner: QR,
+  ) {
+    const { title, content, imagePaths } = createPostDto;
+    const postId = await this.postService.createPost({
+      title,
+      content,
+      userId: user.id,
+      queryRunner,
+    });
+
+    if (imagePaths.length > 0) {
+      await Promise.all(
+        imagePaths.map(async (imagePath) => {
+          this.postService.createImage(postId, imagePath, queryRunner);
+        }),
+      );
+    }
+
+    return postId;
   }
 
   @Get()

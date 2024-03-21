@@ -8,7 +8,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { LoggerMiddleware } from 'src/@middlewares/logger.middleware';
+import { LoggerMiddleware } from 'src/@shared/middlewares/logger.middleware';
 
 import { UserModule } from './user/user.module';
 import { DataSource } from 'typeorm';
