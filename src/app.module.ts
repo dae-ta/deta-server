@@ -21,6 +21,7 @@ import { PostImageModel } from 'src/post/entities/post-image.entity';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { PUBLIC_FOLDER_PATH } from 'src/@shared/constants';
 import { CommonModule } from './common/common.module';
+import { ChatModule } from './chat/chat.module';
 
 @Module({
   imports: [
@@ -45,6 +46,7 @@ import { CommonModule } from './common/common.module';
     AuthModule,
     PostModule,
     CommonModule,
+    ChatModule,
   ],
   // router
   controllers: [AppController],

@@ -76,7 +76,7 @@ export class PostService {
   async findOne(id: number) {
     return this.postRepository.findOne({
       where: { id },
-      relations: ['Images'],
+      relations: ['Images', 'User'],
     });
   }
 
