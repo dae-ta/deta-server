@@ -22,6 +22,7 @@ import { ServeStaticModule } from '@nestjs/serve-static';
 import { PUBLIC_FOLDER_PATH } from 'src/@shared/constants';
 import { CommonModule } from './common/common.module';
 import { ChatModule } from './chat/chat.module';
+import { PostDateModel } from 'src/post/entities/post-date.entity';
 
 @Module({
   imports: [
@@ -39,7 +40,7 @@ import { ChatModule } from './chat/chat.module';
       username: process.env.DB_USERNAME,
       password: process.env.DB_PASSWORD,
       database: process.env.DB_DATABASE,
-      entities: [UserModel, PostModel, PostImageModel],
+      entities: [UserModel, PostModel, PostImageModel, PostDateModel],
       synchronize: true,
     }),
     UserModule,

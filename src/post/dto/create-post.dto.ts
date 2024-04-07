@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import { IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
 
 export class CreatePostDto {
   @IsString()
@@ -8,6 +8,30 @@ export class CreatePostDto {
   @IsString()
   @IsNotEmpty()
   content: string;
+
+  @IsNumber()
+  @IsNotEmpty()
+  payment: number;
+
+  @IsString()
+  @IsNotEmpty()
+  startTime: string;
+
+  @IsString()
+  @IsNotEmpty()
+  endTime: string;
+
+  @IsString()
+  @IsNotEmpty()
+  paymentType: string;
+
+  @IsNumber(
+    {},
+    {
+      each: true,
+    },
+  )
+  datesAtMs: number[] = [];
 
   @IsString({
     each: true,

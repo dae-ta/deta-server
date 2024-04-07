@@ -31,18 +31,40 @@ export class PostController {
     @Body() createPostDto: CreatePostDto,
     @QueryRunner() queryRunner: QR,
   ) {
-    const { title, content, imagePaths } = createPostDto;
+    const {
+      title,
+      content,
+      payment,
+      paymentType,
+      startTime,
+      endTime,
+      datesAtMs,
+      imagePaths,
+    } = createPostDto;
+
     const postId = await this.postService.createPost({
       title,
       content,
+      payment,
+      paymentType,
+      startTime,
+      endTime,
       userId: user.id,
       queryRunner,
     });
 
     if (imagePaths.length > 0) {
-      await Promise.all(
-        imagePaths.map(async (imagePath) => {
+      await Promise.all([
+        ...imagePaths.map(async (imagePath) => {
           this.postService.createImage(postId, imagePath, queryRunner);
+        }),
+      ]);
+    }
+
+    if (datesAtMs.length > 0) {
+      await Promise.all(
+        datesAtMs.map(async (dateAtMs) => {
+          this.postService.createDatesAtMs(postId, dateAtMs, queryRunner);
         }),
       );
     }
@@ -58,6 +80,7 @@ export class PostController {
   }
 
   @Get(':id')
+  @UseGuards(AccessTokenGuard)
   async findOne(@Param('id', ParseIntPipe) id: number) {
     return await this.postService.findOne(id);
   }

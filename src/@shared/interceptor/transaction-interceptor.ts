@@ -31,6 +31,7 @@ export class TransactionInterceptor implements NestInterceptor {
 
     return next.handle().pipe(
       catchError(async (error) => {
+        console.log(error, 'error');
         await queryRunner.rollbackTransaction();
         await queryRunner.release();
         throw new InternalServerErrorException(error, 'Transaction failed');

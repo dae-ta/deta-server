@@ -1,4 +1,5 @@
 import { Exclude } from 'class-transformer';
+import { PostDateModel } from 'src/post/entities/post-date.entity';
 import { PostImageModel } from 'src/post/entities/post-image.entity';
 import { UserModel } from 'src/user/entities/user.entity';
 import {
@@ -24,6 +25,18 @@ export class PostModel {
   @Column('text')
   content: string;
 
+  @Column('int')
+  payment: number;
+
+  @Column('text')
+  startTime: string;
+
+  @Column('text')
+  endTime: string;
+
+  @Column('text')
+  paymentType: string;
+
   @CreateDateColumn()
   createdAt: Date;
 
@@ -45,4 +58,9 @@ export class PostModel {
   })
   @JoinColumn({ name: 'userId', referencedColumnName: 'id' })
   User: UserModel;
+
+  @OneToMany(() => PostDateModel, (postDate) => postDate.Post, {
+    nullable: false,
+  })
+  DatesAtMs: PostDateModel[];
 }

@@ -8,9 +8,17 @@ import { UserModel } from 'src/user/entities/user.entity';
 import { UserService } from 'src/user/user.service';
 import { PostController } from './post.controller';
 import { PostService } from './post.service';
+import { PostDateModel } from 'src/post/entities/post-date.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([PostModel, PostImageModel, UserModel])],
+  imports: [
+    TypeOrmModule.forFeature([
+      PostModel,
+      PostImageModel,
+      UserModel,
+      PostDateModel,
+    ]),
+  ],
   controllers: [PostController],
   providers: [PostService, AuthService, UserService, JwtService],
 })
