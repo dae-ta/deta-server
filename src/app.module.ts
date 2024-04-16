@@ -23,6 +23,7 @@ import { PUBLIC_FOLDER_PATH } from 'src/@shared/constants';
 import { CommonModule } from './common/common.module';
 import { ChatModule } from './chat/chat.module';
 import { PostDateModel } from 'src/post/entities/post-date.entity';
+import { RedisModule } from 'nestjs-redis';
 
 @Module({
   imports: [
@@ -42,6 +43,15 @@ import { PostDateModel } from 'src/post/entities/post-date.entity';
       database: process.env.DB_DATABASE,
       entities: [UserModel, PostModel, PostImageModel, PostDateModel],
       synchronize: true,
+    }),
+    RedisModule.register({
+      host: `redis-17770.c267.us-east-1-4.ec2.cloud.redislabs.com`,
+      port: 17770,
+      password: 'tEYlBUd9FxIgH7zLLMzlhh1mIN5I1abe',
+      username: 'default',
+      connectTimeout: 10000,
+      db: 0,
+      enableReadyCheck: true,
     }),
     UserModule,
     AuthModule,

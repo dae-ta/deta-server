@@ -9,8 +9,8 @@ import {
   WebSocketServer,
   WsException,
 } from '@nestjs/websockets';
+import { RedisService } from 'nestjs-redis';
 import { Server, Socket } from 'socket.io';
-import { onlineMap } from 'src/@shared/constants';
 import { ChatService } from 'src/chat/chat.service';
 import { CreateChatDto } from 'src/chat/dto/create-chat.dto';
 import { EnterChatDto } from 'src/chat/dto/enter-chat.dto';
@@ -23,7 +23,10 @@ import { v4 as uuid } from 'uuid';
 export class ChatGateway
   implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
 {
-  constructor(private readonly chatService: ChatService) {}
+  constructor(
+    private readonly chatService: ChatService,
+    private readonly redisService: RedisService,
+  ) {}
 
   @WebSocketServer() server: Server;
 
@@ -42,18 +45,26 @@ export class ChatGateway
   ) {
     console.log(data, 'create_chat');
     const chatRoomId = uuid();
-    onlineMap.set(chatRoomId, {
-      userId: data.userId,
-      postUserId: data.postUserId,
-      postId: data.postId,
-      message: [],
-    });
+    // onlineMap.set(chatRoomId, {
+    //   userId: data.userId,
+    //   postUserId: data.postUserId,
+    //   postId: data.postId,
+    //   message: [],
+    // });
+
+    await this.redisService.getClient().set(
+      chatRoomId,
+      JSON.stringify({
+        userId: data.userId,
+        postUserId: data.postUserId,
+        postId: data.postId,
+        message: [],
+      }),
+    );
 
     socket.join(chatRoomId);
 
     this.server.in(chatRoomId).emit('receive_chat_id', chatRoomId);
-
-    // const chat = await this.chatService.createChat(data);
   }
 
   @SubscribeMessage('enter_chat')
@@ -62,8 +73,9 @@ export class ChatGateway
     @ConnectedSocket() socket,
   ) {
     console.log('enter_chat', data);
-    // const exist = await this.chatService.checkChatExist(chatId);
-    const exist = onlineMap.has(data.chatId);
+
+    // const exist = onlineMap.has(data.chatId);
+    const exist = await this.redisService.getClient().get(data.chatId);
 
     if (!exist) {
       throw new WsException(`${data.chatId} chatId is not exist!`);
@@ -74,11 +86,15 @@ export class ChatGateway
 
   // socket.on('sendMessage', (message) => { console.log(message)})
   @SubscribeMessage('send_message')
-  sendMessage(
+  async sendMessage(
     @MessageBody() data: { message: string; chatId: string; senderId: number },
     @ConnectedSocket() socket: Socket,
   ) {
-    const chatRoom = onlineMap.get(data.chatId);
+    // const chatRoom = onlineMap.get(data.chatId);
+
+    // const chatRoom = JSON.parse(
+    //   await this.redisService.getClient().get(data.chatId),
+    // );
 
     const newMessage = {
       content: data.message,
@@ -86,14 +102,28 @@ export class ChatGateway
       createdAt: `${new Date().getTime()}`,
     };
 
-    console.log(newMessage.createdAt);
+    const redisClient = this.redisService.getClient();
 
-    chatRoom.message.push(newMessage);
+    // Redis에서 채팅방 데이터 가져오기 (data.chatId는 채팅방 식별자)
+    const chatRoomData = await redisClient.get(data.chatId);
 
-    // 이 방에 있는 모든 사용자에게 보냄
-    this.server.in(data.chatId).emit('receive_message', newMessage);
+    if (chatRoomData) {
+      // JSON 문자열을 객체로 변환
+      const chatRoom = JSON.parse(chatRoomData);
 
-    // // 이 방에 있는 모든 사용자에게 보냄 (나를 제외) Boradcast
+      // 메시지 리스트에 새 메시지 추가
+      chatRoom.message.push(newMessage);
+
+      // 객체를 JSON 문자열로 변환하여 Redis에 다시 저장
+      await redisClient.set(data.chatId, JSON.stringify(chatRoom));
+
+      // 이 방에 있는 모든 사용자에게 보냄
+      this.server.in(data.chatId).emit('receive_message', newMessage);
+    }
+
+    // chatRoom.message.push(newMessage);
+
+    // 이 방에 있는 모든 사용자에게 보냄 (나를 제외) Boradcast
     // socket.to(data.chatId).emit('receive_message', data.message);
   }
 
