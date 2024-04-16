@@ -14,11 +14,13 @@ import { Server, Socket } from 'socket.io';
 import { ChatService } from 'src/chat/chat.service';
 import { CreateChatDto } from 'src/chat/dto/create-chat.dto';
 import { EnterChatDto } from 'src/chat/dto/enter-chat.dto';
+import { RedisIoAdapter } from 'src/chat/redis-io-adapter';
 import { v4 as uuid } from 'uuid';
 
 @WebSocketGateway({
   // ws://localhost:3000/chat
   namespace: 'chat',
+  adapter: RedisIoAdapter,
 })
 export class ChatGateway
   implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
@@ -90,11 +92,7 @@ export class ChatGateway
     @MessageBody() data: { message: string; chatId: string; senderId: number },
     @ConnectedSocket() socket: Socket,
   ) {
-    // const chatRoom = onlineMap.get(data.chatId);
-
-    // const chatRoom = JSON.parse(
-    //   await this.redisService.getClient().get(data.chatId),
-    // );
+    console.log(data.message);
 
     const newMessage = {
       content: data.message,

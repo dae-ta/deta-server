@@ -6,23 +6,24 @@ import {
 } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { LoggerMiddleware } from 'src/@shared/middlewares/logger.middleware';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { LoggerMiddleware } from 'src/@shared/middlewares/logger.middleware';
 
-import { UserModule } from './user/user.module';
-import { DataSource } from 'typeorm';
-import { UserModel } from 'src/user/entities/user.entity';
-import { AuthModule } from './auth/auth.module';
 import { APP_INTERCEPTOR } from '@nestjs/core';
-import { PostModule } from './post/post.module';
-import { PostModel } from 'src/post/entities/post.entity';
-import { PostImageModel } from 'src/post/entities/post-image.entity';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { PUBLIC_FOLDER_PATH } from 'src/@shared/constants';
-import { CommonModule } from './common/common.module';
-import { ChatModule } from './chat/chat.module';
+import { RedisIoAdapter } from 'src/chat/redis-io-adapter';
 import { PostDateModel } from 'src/post/entities/post-date.entity';
+import { PostImageModel } from 'src/post/entities/post-image.entity';
+import { PostModel } from 'src/post/entities/post.entity';
+import { UserModel } from 'src/user/entities/user.entity';
+import { DataSource } from 'typeorm';
+import { AuthModule } from './auth/auth.module';
+import { ChatModule } from './chat/chat.module';
+import { CommonModule } from './common/common.module';
+import { PostModule } from './post/post.module';
+import { UserModule } from './user/user.module';
 import { RedisModule } from 'nestjs-redis';
 
 @Module({
