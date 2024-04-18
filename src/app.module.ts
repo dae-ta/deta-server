@@ -13,7 +13,6 @@ import { AppService } from './app.service';
 import { APP_INTERCEPTOR } from '@nestjs/core';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { PUBLIC_FOLDER_PATH } from 'src/@shared/constants';
-import { RedisIoAdapter } from 'src/chat/redis-io-adapter';
 import { PostDateModel } from 'src/post/entities/post-date.entity';
 import { PostImageModel } from 'src/post/entities/post-image.entity';
 import { PostModel } from 'src/post/entities/post.entity';

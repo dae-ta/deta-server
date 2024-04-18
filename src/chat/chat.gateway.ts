@@ -16,9 +16,8 @@ import { CreateChatDto } from 'src/chat/dto/create-chat.dto';
 import { EnterChatDto } from 'src/chat/dto/enter-chat.dto';
 import { RedisIoAdapter } from 'src/chat/redis-io-adapter';
 import { v4 as uuid } from 'uuid';
-
+// ws://localhost:3000/chat
 @WebSocketGateway({
-  // ws://localhost:3000/chat
   namespace: 'chat',
   adapter: RedisIoAdapter,
 })
@@ -32,9 +31,7 @@ export class ChatGateway
 
   @WebSocketServer() server: Server;
 
-  afterInit(server: Server) {
-    console.log('server Init');
-  }
+  afterInit(server: Server) {}
 
   handleConnection(@ConnectedSocket() socket: Socket) {
     console.log('New connection', socket.id);
@@ -47,12 +44,6 @@ export class ChatGateway
   ) {
     console.log(data, 'create_chat');
     const chatRoomId = uuid();
-    // onlineMap.set(chatRoomId, {
-    //   userId: data.userId,
-    //   postUserId: data.postUserId,
-    //   postId: data.postId,
-    //   message: [],
-    // });
 
     await this.redisService.getClient().set(
       chatRoomId,
