@@ -1,30 +1,6 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="200" alt="Nest Logo" /></a>
-</p>
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
-
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://coveralls.io/github/nestjs/nest?branch=master" target="_blank"><img src="https://coveralls.io/repos/github/nestjs/nest/badge.svg?branch=master#9" alt="Coverage" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
-
-## Description
-
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+## 환경설정
+-  .env DB관련 환경변수를 로컬에 맞게 설정해주세요
 
 ## Installation
 
@@ -45,29 +21,176 @@ $ npm run start:dev
 $ npm run start:prod
 ```
 
-## Test
+<br>
 
-```bash
-# unit tests
-$ npm run test
+## 구현 사항
 
-# e2e tests
-$ npm run test:e2e
+### Common
 
-# test coverage
-$ npm run test:cov
-```
 
-## Support
+- **URL**: `http://{{host}}/common/files`
+- **Description**: 회원프로필, 게시글의 첨부파일 등 이미지를 서버에 저장하고 첨부파일의 주소를 리턴합니다.
+- **Method**: `POST`
+- **Payload(form-data)**:
+  ```
+  {
+    files: .png or .docx ...
+  }
+  ```
+- **Response**
+  ```json
+  {
+    "fileNames": [
+        "baa35c94-b0e5-4e3f-831b-98116d5b5324.docx (or.png ...)"
+    ]
+  }
+  ```
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+  <br />
+<br />
 
-## Stay in touch
+#### Authentication
+- **URL**: `http://{{host}}/auth/join`
+- **Description**: 회원가입 api 입니다.
+- **Method**: `POST`
+- **Payload**:
+  ```json
+  {
+    "email":"kimhecan1@gmail.com",
+    "password": "123",
+    "name": "김희찬",
+    "gender": "Male",
+    "profileImage": "52cec797-c730-4788-b964-382628e3a401.png"
+  }
+  ```
+- **Response**
+  ```json
+  {
+    "accessToken": "JWT 토큰",
+    "refreshToken": "JWT 토큰"
+  }
+  ```
+<br />
+<br />
 
-- Author - [Kamil Myśliwiec](https://kamilmysliwiec.com)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+- **URL**: `http://{{host}}/auth/login`
+- **Description**: 로그인 api 입니다.
+- **Method**: `POST`
+- **Payload**:
+  ```json
+  {
+    "email":"kimhecan@gmail.com",
+    "password": "123"
+  }
+  ```
+- **Response**
+  ```json
+  {
+    "accessToken": "JWT 토큰",
+    "refreshToken": "JWT 토큰"
+  }
+  ```
+<br />
+<br />
 
-## License
+- **URL**: `http://{{host}}/auth/token/access`
+- **Description**: accessToken을 재발급하는 api 입니다.(refreshToken 까지 재발급합니다.)
+- **Method**: `GET`
+- **Header**:
+  ```json
+  {
+    "Authorization": "Bearer JWT refresh 토큰"
+  }
+  ```
+- **Response**
+  ```json
+  {
+    "accessToken": "JWT 토큰",
+    "refreshToken": "JWT 토큰"
+  }
+  ```
 
-Nest is [MIT licensed](LICENSE).
+<br>
+<br>
+
+- **URL**: `http://{{host}}/auth/token/refresh`
+- **Description**: refresh 토큰을 재발급하는 api 입니다.
+- **Method**: `GET`
+- **Header**:
+  ```json
+  {
+    "Authorization": "Bearer JWT refresh 토큰"
+  }
+  ```
+- **Response**
+  ```json
+  {
+    "refreshToken": "JWT 토큰"
+  }
+  ```
+
+<br>
+
+#### User
+- **URL**: `http://{{host}}/user/me`
+- **Description**: 유저 정보를 리턴합니다.
+- **Method**: `GET`
+
+
+<br>
+
+#### Post
+- **URL**: `http://{{host}}/post`
+- **Description**: 글을 생성합니다.
+- **Method**: `POST`
+- **Payload**:
+  ```json
+
+    {
+      "title": "title",
+      "content": "content",
+      "payment": 1000,
+      "startTime": 123213412412,
+      "endTime": 123123123,
+      "datesAtMs": [123123,123123],
+      "imagePaths": [
+        "12312312.png",
+        "3212412.png"
+      ] 
+    }
+
+  ```
+<br>
+
+**URL**: `http://{{host}}/post`
+- **Description**: 글 리스트를 가져옵니다.
+- **Method**: `GET`
+
+<br>
+
+**URL**: `http://{{host}}/post/:id`
+- **Description**: 특정 글 리스트를 가져옵니다.
+- **Method**: `GET`
+
+<br>
+
+**URL**: `http://{{host}}/post/:id`
+- **Description**: 특정 글을 수정합니다.
+- **Method**: `PATCH`
+
+<br>
+
+**URL**: `http://{{host}}/post/:id`
+- **Description**: 특정 글을 삭제합니다.
+- **Method**: `DELETE`
+
+<br>
+
+
+#### Chat
+**URL**: `ws://{{host}}/chat`
+- **Description**: 채팅기능입니다.
+create_chat: 방 생성
+enter_chat: 방 입장
+send_message: 메세지 전송
+receive_message: 메세지 받기
